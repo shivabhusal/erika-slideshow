@@ -1,0 +1,16 @@
+slide_duration: 5 # sec
+slide_animation: cross-fade
+caption:
+  show: true
+  font-family: Times New Roman
+  font-color: red
+  font-size: 30px;
+  animation: slide-left
+
+# The first frame
+title:
+  show: true
+  font-family: Times New Roman
+  font-color: red
+  font-size: 30px;
+  animation: slide-left
