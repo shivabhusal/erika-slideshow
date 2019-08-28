@@ -1,0 +1,7 @@
+#!/usr/bin/ruby
+require 'streamio-ffmpeg'
+require File.absolute_path('./erika', __dir__)
+
+
+
+Erika.new.()

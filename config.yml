@@ -1,5 +1,14 @@
 slide_duration: 5 # sec
 slide_animation: cross-fade
+audio: bgaudio.mp3
+source: 'tmp/images/%d.jpg'
+output:
+  filename: output/movie.mp4
+  resolution: 1920x1080 #‘hd1080’
+  height: 1080
+  width: 1920
+  frame_rate: '1/30' #‘sntsc’ '1/5'
+
 caption:
   show: true
   font-family: Times New Roman
