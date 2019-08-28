@@ -1,6 +1,7 @@
 require 'open3'
 require 'psych'
 require 'pry'
+
 #Convert Hash to OpenStruct recursively
 class Hash
   def to_o
@@ -55,8 +56,9 @@ class Erika
   
   private
     def run(cmd)
+      puts cmd
       o, e, s = Open3.capture3(cmd)
-      # puts e
+      puts e
     end
     
     def scaling_params(file)
@@ -107,7 +109,16 @@ class Erika
       `mkdir tmp`
       `mkdir tmp/images`
     end
+    
+  class Transition
+  
+  end
+  
+  class Subtitle
+  
+  end
 end
+
 
 Erika.new.resize_images
 Erika.new.call
