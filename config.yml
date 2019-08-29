@@ -2,7 +2,7 @@ slide_duration: 3 # sec
 slide_animation: cross-fade
 slide_animation_duration: 2
 audio: bgmusic.mp3
-source: 'images/'
+source: 'images'
 file_types:
   - jpg
   - jpeg

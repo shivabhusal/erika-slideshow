@@ -16,7 +16,7 @@ class String
 end
 
 class Erika
-  attr_accessor :default, :config, :file_data, :subtitles
+  attr_accessor :default, :config, :subtitles
   class << self
     def config
       config_file_path = File.absolute_path('./config.yml', __dir__).to_s
@@ -34,7 +34,6 @@ class Erika
   
   def initialize
     @subtitles = []
-    @file_data = {}
     @config    = self.class.config
     @default   = {
         output: {
@@ -71,7 +70,7 @@ class Erika
     
     run(cmd)
     
-    length_of_video = config.slide_duration * file_data.keys.count.to_f
+    length_of_video = config.slide_duration * no_of_images.to_f
     length_of_audio = %x{ffprobe -i #{config.audio} -show_format -v quiet | sed -n 's/duration=//p'}.chomp.to_f
     num_of_loops    = (length_of_video / length_of_audio).ceil
     
@@ -117,12 +116,7 @@ class Erika
       run(cmd)
       
       file_name                   = file.split('/').last
-      file_title                  = file_name.split('.').first.gsub(/W/, ' ')
-      file_data[formatted_prefix] = {
-          index:             index,
-          title:             file_title.titleize,
-          original_filename: file_name,
-      }.to_o
+      file_title                  = file_name.split('.').first.gsub(/\W/, ' ')
       
       add_to_subtitle(index, file_title.titleize)
     end
@@ -132,11 +126,9 @@ class Erika
   
   private
     
-    # @return [String] Eg. -i 00000.jpg -i 000001.jpg
-    # def image_files_in_order
-    #   file_data.keys.map { |x| "-i #{x}.jpg" }.join(' ')
-    # end
-    
+    def no_of_images
+      subtitles.count
+    end
     
     # 1
     # 00:00:01,600 --> 00:00:04,200
@@ -212,7 +204,7 @@ class Erika
     
     def input_file(input_file)
       # "images/#{input_file}"
-      input_file
+      %Q{"#{input_file}"}
     end
     
     def output_file(input_file, formatted_prefix)
