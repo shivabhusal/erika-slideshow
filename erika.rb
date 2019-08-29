@@ -34,21 +34,20 @@ class Erika
     
     run(cmd)
     
-    # cmd = [
-    #     ['ffmpeg'],
-    #     ['-r', frame_rate],
-    #     ['-i', config.output.tmp_filename],
-    #     ['-i bgmusic.mp3'],
-    #     ['-filter_complex "[0:a]aformat=fltp:44100:stereo,apad[0a];[1]aformat=fltp:44100:stereo,volume=1.5[1a];[0a][1a]amerge[a]" \
-    #    -map 0:v -map "[a]" -ac 2 '],
-    #     [config.output.filename]
-    # ].flatten.join(' ')
     
-    cmd = %Q{ffmpeg -i #{config.output.tmp_filename} -i #{config.audio} -c:v copy \
-       -map 0:v -map 1:a -ac 2 -shortest #{config.output.filename}}
+    # Add Background Music to the Slideshow
+    cmd = [
+        ['ffmpeg'],
+        ['-i', config.output.tmp_filename], # video file as 0th input
+        ['-i', config.audio], # audio file as 1st input
+        ['-map', '0:v'], # Selects the video from 0th input
+        ['-map', '1:a'], # Selects the audio from 1st input
+        ['-ac', '2'], # Audio channel manipulation https://trac.ffmpeg.org/wiki/AudioChannelManipulation
+        ['-shortest'], # will end the output file whenever the shortest input ends.
+        [config.output.filename]
+    ].flatten.join(' ')
+    
     run(cmd)
-    
-    
   end
   
   def resize_images
