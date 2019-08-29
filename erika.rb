@@ -16,7 +16,7 @@ class String
 end
 
 class Erika
-  attr_accessor :default, :config, :file_data
+  attr_accessor :default, :config, :file_data, :subtitles
   class << self
     def config
       config_file_path = File.absolute_path('./config.yml', __dir__).to_s
@@ -33,6 +33,7 @@ class Erika
   end
   
   def initialize
+    @subtitles = []
     @file_data = {}
     @config    = self.class.config
     @default   = {
@@ -41,13 +42,14 @@ class Erika
             filename: 'movie.mp4'
         },
         temp:   {
-            dir:            'tmp',
-            image_dir:      'tmp/images',
-            image_path:     'tmp/images/%05d.jpg',
-            source:         config.source,
-            target:         "tmp/#{config.source}",
-            filename:       "tmp/#{config.output.filename.split('/').last}",
-            audio_filename: "tmp/#{config.audio.split('/').last}"
+            dir:               'tmp',
+            image_dir:         'tmp/images',
+            image_path:        'tmp/images/%05d.jpg',
+            source:            config.source,
+            target:            "tmp/#{config.source}",
+            filename:          "tmp/#{config.output.filename.split('/').last}",
+            audio_filename:    "tmp/#{config.audio.split('/').last}",
+            subtitle_filename: "tmp/subtitle.srt"
         }
     }.to_o
   end
@@ -87,6 +89,7 @@ class Erika
         ['ffmpeg'],
         ['-i', default.temp.filename], # video file as 0th input
         ['-i', default.temp.audio_filename], # audio file as 1st input
+        ["-vf subtitles=#{default.temp.subtitle_filename}"],
         ['-map', '0:v'], # Selects the video from 0th input
         ['-map', '1:a'], # Selects the audio from 1st input
         ['-ac', '2'], # Audio channel manipulation https://trac.ffmpeg.org/wiki/AudioChannelManipulation
@@ -113,13 +116,18 @@ class Erika
       
       run(cmd)
       
-      # Store image file metadata
-      file_title                  = file.split('.').first
+      file_name                   = file.split('/').last
+      file_title                  = file_name.split('.').first.gsub(/W/, ' ')
       file_data[formatted_prefix] = {
+          index:             index,
           title:             file_title.titleize,
-          original_filename: file,
+          original_filename: file_name,
       }.to_o
+      
+      add_to_subtitle(index, file_title.titleize)
     end
+    
+    File.write(default.temp.subtitle_filename, subtitles.join("\n"))
   end
   
   private
@@ -128,6 +136,41 @@ class Erika
     # def image_files_in_order
     #   file_data.keys.map { |x| "-i #{x}.jpg" }.join(' ')
     # end
+    
+    
+    # 1
+    # 00:00:01,600 --> 00:00:04,200
+    # English (US)
+    #
+    # 2
+    # 00:00:05,900 --> 00:00:07,999
+    # This is a subtitle in American English
+    #
+    # 3
+    # 00:00:10,000 --> 00:00:14,000
+    # Adding subtitles is very easy to do
+    
+    def add_to_subtitle(index, title)
+      start_time = formatted_time(index * config.slide_duration) # Seconds
+      end_time   = formatted_time((index + 1) * config.slide_duration) # Seconds
+      subtitle   = [
+          '',
+          index + 1,
+          "#{start_time} --> #{end_time}",
+          title,
+          ''
+      ]
+      
+      subtitles << subtitle
+    end
+    
+    def formatted_time(sec)
+      hour = sec / 3600
+      min  = (sec - hour * 3600) / 60
+      sec  = sec - min * 60
+      ms   = '00'
+      [hour, min, sec].map { |x| '%02d' % x }.join(':') + ',000'
+    end
     
     def run(cmd)
       puts '-' * 100
@@ -162,7 +205,7 @@ class Erika
     # @return [width, height]
     def get_image_dimension(file)
       dimension = `ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 #{file}`
-      result = dimension.split('x')
+      result    = dimension.split('x')
       [result[0].to_i, result[1].to_i]
     end
     
@@ -196,7 +239,7 @@ class Erika
     end
 end
 
-
 erika = Erika.new
 erika.resize_images
+# binding.pry
 erika.call

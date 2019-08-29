@@ -33,3 +33,5 @@ apt-get install ffmpeg
     - [https://en.wikibooks.org/wiki/FFMPEG_An_Intermediate_Guide/image_sequence](https://en.wikibooks.org/wiki/FFMPEG_An_Intermediate_Guide/image_sequence)
 - Repeat Audio and generate a new audio file
     - [https://stackoverflow.com/a/8017021/3437900](https://stackoverflow.com/a/8017021/3437900)
+- Add Subtitles to the video
+    - [https://trac.ffmpeg.org/wiki/HowToBurnSubtitlesIntoVideo](https://trac.ffmpeg.org/wiki/HowToBurnSubtitlesIntoVideo)

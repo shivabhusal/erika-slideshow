@@ -1,4 +1,4 @@
-slide_duration: 60 # sec
+slide_duration: 3 # sec
 slide_animation: cross-fade
 slide_animation_duration: 2
 audio: bgmusic.mp3
