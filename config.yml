@@ -16,9 +16,9 @@ output:
 
 caption:
   show: true
-  font-family: Times New Roman
-  font-color: red
-  font-size: 30px;
+  font: "HeadLineA Regular"
+  font_color: "&H0000ff&"
+  font_size: 30 #px
   animation: slide-left
 
 # The first frame

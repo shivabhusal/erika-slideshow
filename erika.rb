@@ -88,7 +88,7 @@ class Erika
         ['ffmpeg'],
         ['-i', default.temp.filename], # video file as 0th input
         ['-i', default.temp.audio_filename], # audio file as 1st input
-        ["-vf subtitles=#{default.temp.subtitle_filename}"],
+        [%Q{-vf "subtitles=#{default.temp.subtitle_filename}:force_style='Fontsize=#{config.caption.font_size},FontName=#{config.caption.font},PrimaryColour=#{config.caption.font_color}'"}],
         ['-map', '0:v'], # Selects the video from 0th input
         ['-map', '1:a'], # Selects the audio from 1st input
         ['-ac', '2'], # Audio channel manipulation https://trac.ffmpeg.org/wiki/AudioChannelManipulation
