@@ -9,36 +9,76 @@ class Hash
   end
 end
 
+class String
+  def titleize
+    self.split.each { |x| x.capitalize! }.join(' ')
+  end
+end
+
 class Erika
+  attr_accessor :default, :config, :file_data
   class << self
     def config
-      @config ||= Psych.load_file(File.absolute_path('./config.yml', __dir__).to_s).to_o
+      config_file_path = File.absolute_path('./config.yml', __dir__).to_s
+      @config          ||= begin
+        data = Psych.load_file(config_file_path)
+        data.merge({
+                       frame_rate:   "1/#{data['slide_duration']}",
+                       source_dir:   data['source'].split('/').first,
+                       output_dir:   data['output']['filename'].split('/').first,
+                       source_files: "#{data['source']}/*.{#{data['file_types'].join(',')}}"
+                   }).to_o
+      end
     end
   end
   
-  def config
-    self.class.config
+  def initialize
+    @file_data = {}
+    @config    = self.class.config
+    @default   = {
+        output: {
+            dir:      'output',
+            filename: 'movie.mp4'
+        },
+        temp:   {
+            dir:       'tmp',
+            image_dir: 'tmp/images',
+            image_path: 'tmp/images/%05d.jpg',
+            source:    config.source,
+            target:    "tmp/#{config.source}",
+            filename:  "tmp/#{config.output.filename.split('/').last}"
+        }
+    }.to_o
   end
   
   def call
-    frame_rate = "1/#{config.slide_duration}"
+    # frame_rate = "1/#{config.slide_duration}"
+    # Generate a temporary file with slides only; no music
+    # Music will be added later using different command
+    # Note: the orders of switches should not be altered
     cmd = [
         ['ffmpeg'],
-        ['-r', frame_rate],
-        ['-i', config.source],
+        ['-r', config.frame_rate],
+        ['-i', default.temp.image_path],
         ['-c:v', 'libx264'],
         ['-r', '30'], # frame per second,
         ['-pix_fmt', 'yuv420p'],
-        ["#{config.output.tmp_filename}"]
+        [default.temp.filename]
     ].flatten.join(' ')
     
     run(cmd)
     
+    # length_of_video = config.slide_duration *
+    #     num_of_loops = length_of_audio * 12
+    # # Generate a new audio file looped so that it can cover the video fully
+    # cmd = %Q{ffmpeg -lavfi "amovie=#{config.audio}:loop=3" out.wav}
+    # run(cmd)
     
+    # ffmpeg has the promising -loop_input flag, but it doesn't support audio inputs yet.
     # Add Background Music to the Slideshow
     cmd = [
         ['ffmpeg'],
-        ['-i', config.output.tmp_filename], # video file as 0th input
+        ['-i', default.temp.filename], # video file as 0th input
         ['-i', config.audio], # audio file as 1st input
         ['-map', '0:v'], # Selects the video from 0th input
         ['-map', '1:a'], # Selects the audio from 1st input
@@ -53,24 +93,39 @@ class Erika
   def resize_images
     prepare_tmp_dir
     
-    Dir['images/*.jpg'].each do |file|
-      # binding.pry if !matches_ratio?(file)
-      # file = __dir__ + '/images/' + file
-      # cmd = ['ffmpeg', '-i', file, '-vf', 'scale=640:480', file].join(' ')
+    # Rescale and Pad the images to the center of the frame selected in config.yml file
+    Dir[config.source_files].sort.each_with_index do |file, index|
+      formatted_prefix = '%05d' % index
+      
       cmd = [
           ['ffmpeg'],
           ['-i', input_file(file)],
           ['-vf', scaling_params(file)],
-          [output_file(file)]
+          [output_file(file, formatted_prefix)]
       ].flatten.join(' ')
       
       run(cmd)
+      
+      # Store image file metadata
+      file_title                  = file.split('.').first
+      file_data[formatted_prefix] = {
+          title:             file_title.titleize,
+          original_filename: file,
+      }.to_o
     end
   end
   
   private
+    
+    # @return [String] Eg. -i 00000.jpg -i 000001.jpg
+    # def image_files_in_order
+    #   file_data.keys.map { |x| "-i #{x}.jpg" }.join(' ')
+    # end
+    
     def run(cmd)
+      puts '-' * 100
       puts cmd
+      puts '-' * 100
       o, e, s = Open3.capture3(cmd)
       puts e
     end
@@ -78,9 +133,9 @@ class Erika
     def scaling_params(file)
       if aspect_ratio(file) > desired_aspect_ratio
         # No need to set padding
-        [%Q{"scale=-1:#{Erika::config.output.width}"}].join(', ')
+        [%Q{"scale=-1:#{config.output.width}"}].join(', ')
       else
-        [%Q{"scale=-1:#{Erika::config.output.height}}, %Q{pad=#{Erika::config.output.width}:ih:(ow-iw)/2"}].join(', ')
+        [%Q{"scale=-1:#{config.output.height}}, %Q{pad=#{config.output.width}:ih:(ow-iw)/2"}].join(', ')
       end
     end
     
@@ -112,27 +167,31 @@ class Erika
       input_file
     end
     
-    def output_file(input_file)
-      "./tmp/#{input_file}"
+    def output_file(input_file, formatted_prefix)
+      pure_file = input_file.split('/').last
+      
+      # Something like tmp/images/0001_tomcruise_child.jpg
+      "#{default.temp.image_dir}/#{formatted_prefix}.jpg"
     end
     
     def prepare_tmp_dir
-      `rm -r ./tmp`
-      `rm -r ./output`
-      `mkdir output`
-      `mkdir tmp`
-      `mkdir tmp/images`
+      `rm -r ./#{default.temp.dir}`
+      `rm -r ./#{config.output_dir}`
+      `mkdir #{config.output_dir}`
+      `mkdir #{default.temp.dir}`
+      `mkdir #{default.temp.image_dir}`
     end
     
-  class Transition
-  
-  end
-  
-  class Subtitle
-  
-  end
+    class Transition
+    
+    end
+    
+    class Subtitle
+    
+    end
 end
 
 
-Erika.new.resize_images
-Erika.new.call
+erika = Erika.new
+erika.resize_images
+erika.call
