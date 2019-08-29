@@ -11,6 +11,7 @@ output:
   filename: output/movie.mp4
   resolution: 1920x1080 #‘hd1080’
   height: 1080
+  aspect_ratio: 16:9
   width: 1920
   frame_rate: '1/30' #‘sntsc’ '1/5'
 
