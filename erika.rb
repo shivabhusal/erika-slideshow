@@ -41,12 +41,13 @@ class Erika
             filename: 'movie.mp4'
         },
         temp:   {
-            dir:       'tmp',
-            image_dir: 'tmp/images',
-            image_path: 'tmp/images/%05d.jpg',
-            source:    config.source,
-            target:    "tmp/#{config.source}",
-            filename:  "tmp/#{config.output.filename.split('/').last}"
+            dir:            'tmp',
+            image_dir:      'tmp/images',
+            image_path:     'tmp/images/%05d.jpg',
+            source:         config.source,
+            target:         "tmp/#{config.source}",
+            filename:       "tmp/#{config.output.filename.split('/').last}",
+            audio_filename: "tmp/#{config.audio.split('/').last}"
         }
     }.to_o
   end
@@ -68,18 +69,24 @@ class Erika
     
     run(cmd)
     
-    # length_of_video = config.slide_duration *
-    #     num_of_loops = length_of_audio * 12
-    # # Generate a new audio file looped so that it can cover the video fully
-    # cmd = %Q{ffmpeg -lavfi "amovie=#{config.audio}:loop=3" out.wav}
-    # run(cmd)
+    length_of_video = config.slide_duration * file_data.keys.count.to_f
+    length_of_audio = %x{ffprobe -i #{config.audio} -show_format -v quiet | sed -n 's/duration=//p'}.chomp.to_f
+    num_of_loops    = (length_of_video / length_of_audio).ceil
+    
+    if length_of_video > length_of_audio
+      # Generate a new audio file looped so that it can cover the video fully
+      cmd = %Q{ffmpeg -lavfi "amovie=#{config.audio}:loop=#{num_of_loops }" #{default.temp.audio_filename}}
+      run(cmd)
+    else
+      run("cp #{config.audio} #{default.temp.audio_filename}")
+    end
     
     # ffmpeg has the promising -loop_input flag, but it doesn't support audio inputs yet.
     # Add Background Music to the Slideshow
     cmd = [
         ['ffmpeg'],
         ['-i', default.temp.filename], # video file as 0th input
-        ['-i', config.audio], # audio file as 1st input
+        ['-i', default.temp.audio_filename], # audio file as 1st input
         ['-map', '0:v'], # Selects the video from 0th input
         ['-map', '1:a'], # Selects the audio from 1st input
         ['-ac', '2'], # Audio channel manipulation https://trac.ffmpeg.org/wiki/AudioChannelManipulation
@@ -154,10 +161,8 @@ class Erika
     
     # @return [width, height]
     def get_image_dimension(file)
-      # a = %x(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of default=nw=1 #{file})
-      # result = a.match(/([\d]{1,})/)
-      a      = `identify -ping -format '%w %h' #{file}`
-      result = a.split(' ')
+      dimension = `ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 #{file}`
+      result = dimension.split('x')
       [result[0].to_i, result[1].to_i]
     end
     
