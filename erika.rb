@@ -24,16 +24,31 @@ class Erika
     frame_rate = "1/#{config.slide_duration}"
     cmd = [
         ['ffmpeg'],
-        ['-y'],
         ['-r', frame_rate],
         ['-i', config.source],
         ['-c:v', 'libx264'],
         ['-r', '30'], # frame per second,
         ['-pix_fmt', 'yuv420p'],
-        [config.output.filename]
+        ["#{config.output.tmp_filename}"]
     ].flatten.join(' ')
     
     run(cmd)
+    
+    # cmd = [
+    #     ['ffmpeg'],
+    #     ['-r', frame_rate],
+    #     ['-i', config.output.tmp_filename],
+    #     ['-i bgmusic.mp3'],
+    #     ['-filter_complex "[0:a]aformat=fltp:44100:stereo,apad[0a];[1]aformat=fltp:44100:stereo,volume=1.5[1a];[0a][1a]amerge[a]" \
+    #    -map 0:v -map "[a]" -ac 2 '],
+    #     [config.output.filename]
+    # ].flatten.join(' ')
+    
+    cmd = %Q{ffmpeg -i #{config.output.tmp_filename} -i #{config.audio} -c:v copy \
+       -map 0:v -map 1:a -ac 2 -shortest #{config.output.filename}}
+    run(cmd)
+    
+    
   end
   
   def resize_images

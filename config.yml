@@ -1,8 +1,10 @@
 slide_duration: 5 # sec
 slide_animation: cross-fade
-audio: bgaudio.mp3
+slide_animation_duration: 2
+audio: bgmusic.mp3
 source: 'tmp/images/%d.jpg'
 output:
+  tmp_filename: tmp/movie.mp4
   filename: output/movie.mp4
   resolution: 1920x1080 #‘hd1080’
   height: 1080
