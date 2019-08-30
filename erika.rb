@@ -1,13 +1,11 @@
 require 'open3'
 require 'psych'
 require 'pry'
-require './config'
 require './hash'
+require './config'
 require './string'
 
 class Erika
-  extends Config
-  
   attr_accessor :default, :config, :subtitles
   
   class Runner
