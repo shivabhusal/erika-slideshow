@@ -1,5 +1,0 @@
-file 'tmp/videos/00000.mp4'
-file 'tmp/videos/00001.mp4'
-file 'tmp/videos/00002.mp4'
-file 'tmp/videos/00003.mp4'
-file 'tmp/videos/00004.mp4'
