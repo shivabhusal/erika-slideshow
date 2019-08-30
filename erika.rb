@@ -57,56 +57,11 @@ class Erika
   end
   
   def call
-    # frame_rate = "1/#{config.slide_duration}"
     # Generate a temporary file with slides only; no music
     # Music will be added later using different command
     # Note: the orders of switches should not be altered
-    # ffmpeg -y -i image-1.mpeg -i image-2.mpeg -i image-3.mpeg -i image-4.mpeg
-    # -i image-5.mpeg -filter_complex '[0:v][1:v][2:v][3:v][4:v] concat=n=5:v=1 [v]' -map '[v]'
-    # -c:v libx264 -s 1280x720 -aspect 16:9 -q:v 1 -pix_fmt yuv420p output.mp4
-    # cmd = [
-    #     ['ffmpeg'],
-    #     # ['-r', config.frame_rate],
-    #     ['-i', video_files],
-    #     [%Q{-filter_complex "[0:v][1:v][2:v][3:v][4:v] concat=n=5:v=1:a=0[v]"}],
-    #     [" -map '[v]'"],
-    #     ['-c:v', 'mpeg2video'],
-    #     ['-s', config.output.resolution],
-    #     # ['-aspect', config.output.aspect_ratio],
-    #     ['-q:v 1'],
-    #     # ['-r', '30'], # frame per second,
-    #     # ['-pix_fmt', 'yuv420p'],
-    #     [default.temp.filename]
-    # ].flatten.join(' ')
-    
     cmd = %Q{ffmpeg -f concat -safe 0 -i #{default.temp.video_list} -c copy #{default.temp.filename}}
     
-    # cmd = [
-    #     ['ffmpeg'],
-    #     image_files.map{|x| "-loop 1 -t 5 -i #{x}"},
-    #     ['-filter_complex "'],
-    #     image_files.count.times.map {|i| "[#{i}:v]fade=t=in:st=0:d=1,fade=t=out:st=4:d=1[v#{i}];"},
-    #     ["#{image_files.count.times.map{|i| "[v#{i}]"}.join('')}concat=n=#{image_files.count}:v=1:a=0,format=yuv420p[v]"],
-    #     ['"'],
-    #     ['-map "[v]"'],
-    #     [default.temp.filename]
-    # ].flatten.join(" ")
-    
-    # %Q{
-    # ffmpeg \
-    #   -loop 1 -t 5 -i input0.png \
-    #   -loop 1 -t 5 -i input1.png \
-    #   -loop 1 -t 5 -i input2.png \
-    #   -loop 1 -t 5 -i input3.png \
-    #   -loop 1 -t 5 -i input4.png \
-    #   -filter_complex \
-    #   "[0:v]fade=t=out:st=4:d=1[v0]; \
-    #    [1:v]fade=t=in:st=0:d=1,fade=t=out:st=4:d=1[v1]; \
-    #    [2:v]fade=t=in:st=0:d=1,fade=t=out:st=4:d=1[v2]; \
-    #    [3:v]fade=t=in:st=0:d=1,fade=t=out:st=4:d=1[v3]; \
-    #    [4:v]fade=t=in:st=0:d=1,fade=t=out:st=4:d=1[v4]; \
-    #    [v0][v1][v2][v3][v4]concat=n=5:v=1:a=0,format=yuv420p[v]" -map "[v]" out.mp4
-    # }
     run(cmd)
     
     length_of_video = config.slide_duration * no_of_images.to_f
@@ -144,8 +99,8 @@ class Erika
     # Rescale and Pad the images to the center of the frame selected in config.yml file
     Dir[config.source_files].sort.each_with_index do |file, index|
       formatted_prefix = '%05d' % index
-      output_filename = output_file(file, formatted_prefix)
-      cmd = [
+      output_filename  = output_file(file, formatted_prefix)
+      cmd              = [
           ['ffmpeg'],
           ['-i', input_file(file)],
           ['-vf', scaling_params(file)],
@@ -155,10 +110,10 @@ class Erika
       run(cmd)
       
       file_name  = file.split('/').last
-      file_title = file_name.split('.').first.gsub(/\W/, ' ')
+      file_title = get_only_sentense_part(file_name)
       
       add_to_subtitle(index, file_title.titleize)
-      create_video_for(output_filename)
+      create_video_for(output_filename, index)
       cmd = %Q{echo file '#{formatted_prefix}.mp4' >> #{default.temp.video_list}}
       run(cmd)
     end
@@ -167,7 +122,9 @@ class Erika
   end
   
   private
-    
+    def get_only_sentense_part(file_name)
+      file_name.split('.').first.gsub(/\W/, ' ').split(/(\A[\d]*[^a-zA-Z])/).last
+    end
     def video_files
       Dir["#{default.temp.video_dir}/*.mp4"].sort.join(' -i ')
     end
@@ -175,20 +132,32 @@ class Erika
     def image_files
       Dir["#{default.temp.image_dir}/*.jpg"].sort
     end
-
-    def create_video_for(image)
-      filename = image.split('/').last.split('.').first
-      later_start_time = config.slide_duration - config.slide_animation_duration
+    
+    def create_video_for(image, index)
+      filename           = image.split('/').last.split('.').first
+      later_start_time   = config.slide_duration - config.slide_animation_duration
       earlier_start_time = 0
+      
+      if index == 0
+        # no fading in beginning, but fadeout at end
+        transition = %Q{fade=t=out:st=#{later_start_time}:d=#{config.slide_animation_duration}}
+      elsif index == no_of_images - 1
+        # the should be fading in beginning, but no fadeout at end
+        transition = %Q{fade=t=in:st=#{earlier_start_time}:d=#{config.slide_animation_duration}}
+      else
+        transition = %Q{fade=t=in:st=#{earlier_start_time}:d=#{config.slide_animation_duration},fade=t=out:st=#{later_start_time}:d=#{config.slide_animation_duration}}
+      end
+      filter = %Q{"#{transition}"}
+      
       cmd = [
           ['ffmpeg'],
-          ['-y',''],
-          ['-loop','1'],
-          ['-i',image],
-          ['-vf',%Q{"fade=t=in:st=#{earlier_start_time}:d=#{config.slide_animation_duration},fade=t=out:st=#{later_start_time}:d=#{config.slide_animation_duration},scale=#{config.output.width}:#{config.output.height}:force_original_aspect_ratio=decrease,pad=#{config.output.width}:#{config.output.height}:(ow-iw)/2:(oh-ih)/2"}],
-          ['-c:v','mpeg2video'],
-          ['-t',config.slide_duration],
-          ['-q:v','1'],
+          ['-y', ''],
+          ['-loop', '1'],
+          ['-i', image],
+          ['-vf', filter],
+          ['-c:v', 'mpeg2video'],
+          ['-t', config.slide_duration],
+          ['-q:v', '1'],
           ['-b:a 32k'],
           ["#{default.temp.video_dir}/#{filename}.mp4"]
       ].join(' ')
@@ -196,7 +165,7 @@ class Erika
     end
     
     def no_of_images
-      subtitles.count
+      @no_of_images ||= Dir[config.source_files].count
     end
     
     # 1
@@ -237,12 +206,7 @@ class Erika
     end
     
     def scaling_params(file)
-      if aspect_ratio(file) >= desired_aspect_ratio
-        # No need to set padding
-        [%Q{"scale=#{config.output.width}:#{config.output.height}:force_original_aspect_ratio=decrease}, %Q{pad=#{config.output.width}:#{config.output.height}:(iw-ow)/2:(ih-oh)/2"}].join(', ')
-      else
-        [%Q{"scale=-1:#{config.output.height}}, %Q{pad=#{config.output.width}:ih:(ow-iw)/2"}].join(', ')
-      end
+      %Q{"scale=#{config.output.width}:#{config.output.height}:force_original_aspect_ratio=decrease,pad=#{config.output.width}:#{config.output.height}:(ow-iw)/2:(oh-ih)/2"}
     end
     
     
@@ -301,5 +265,4 @@ end
 
 erika = Erika.new
 erika.resize_images
-# binding.pry
 erika.call
