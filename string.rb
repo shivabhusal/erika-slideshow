@@ -7,4 +7,8 @@ class String
   def sentence_case
     self.split('.').first.gsub(/\W/, ' ').split(/(\A[\d]*[^a-zA-Z])/).last
   end
+  
+  def shell_escape
+    %Q{"#{self}"}
+  end
 end

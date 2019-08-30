@@ -2,11 +2,13 @@ class Erika
   Config = begin
     config_file_path = File.absolute_path('./config.yml', __dir__).to_s
     data             = Psych.load_file(config_file_path)
+    source_files     = "#{data['source']}/*.{#{data['file_types'].join(',')}}"
     data.merge({
+                   no_of_images: Dir[source_files].count,
                    frame_rate:   "1/#{data['slide_duration']}",
                    source_dir:   data['source'].split('/').first,
                    output_dir:   data['output']['filename'].split('/').first,
-                   source_files: "#{data['source']}/*.{#{data['file_types'].join(',')}}"
+                   source_files: source_files
                }).to_o
   end
   
