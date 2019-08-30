@@ -1,8 +1,10 @@
 slide_duration: 3 # sec
 slide_animation: cross-fade
 slide_animation_duration: 2
-audio: bgmusic.mp3
+audio: library/bensound-adventure.mp3
 source: 'images'
+prefix: hello.jpg
+suffix: thankyou.jpg
 file_types:
   - jpg
   - jpeg
@@ -18,7 +20,7 @@ output:
 caption:
   show: true
   font: "HeadLineA Regular"
-  font_color: "&H0000ff&"
+  font_color: "&H3300ff&"
   font_size: 30 #px
   animation: slide-left
 
