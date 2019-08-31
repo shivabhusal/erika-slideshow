@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+require 'pry'
+
+# Adding the lib directory to the Load Path of Ruby
+$:.unshift File.expand_path("../../lib", __FILE__)
+
+require 'erika'
+
+erika = Erika::SlideShow.new
+erika.start
