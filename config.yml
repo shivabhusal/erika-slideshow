@@ -1,0 +1,33 @@
+slide_duration: 3 # sec
+slide_animation: cross-fade
+slide_animation_duration: 2
+audio: library/bensound-adventure.mp3
+source: 'images'
+prefix: hello.jpg
+suffix: thankyou.jpg
+file_types:
+  - jpg
+  - jpeg
+  - png
+output:
+  filename: output/movie.mp4
+  resolution: 1920x1080 #‘hd1080’
+  height: 1080
+  aspect_ratio: 16:9
+  width: 1920
+  frame_rate: '1/30' #‘sntsc’ '1/5'
+
+caption:
+  show: true
+  font: "HeadLineA Regular"
+  font_color: "&H3300ff&"
+  font_size: 30 #px
+  animation: slide-left
+
+# The first frame
+title:
+  show: true
+  font-family: Times New Roman
+  font-color: red
+  font-size: 30px;
+  animation: slide-left

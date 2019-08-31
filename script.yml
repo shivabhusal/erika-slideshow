@@ -1,0 +1,6 @@
+# If this file is empty, all the images in `images` folder will be played in sequence
+# If script-config is only provided for `5`th index image, then only the config provided will
+#   will apply for the `5`th indexed image, other images will have default settings
+0:
+  caption: Picture Title
+  font-size: 40px
