@@ -35,9 +35,10 @@ class Erika
       
       
       def prepare_tmp_dir
-        `rm -r ./#{Erika::Default.temp.dir}`
-        `rm -r ./#{Erika::Config.output_dir}`
+        `rm -r #{Erika::Default.temp.dir}`
+        `rm -r #{Erika::Config.output_dir}`
         
+        `mkdir #{Erika::TempRoot}`
         `mkdir #{Erika::Config.output_dir}`
         `mkdir #{Erika::Default.temp.dir}`
         `mkdir #{Erika::Default.temp.image_dir}`

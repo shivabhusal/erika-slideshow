@@ -1,4 +1,5 @@
 class Erika
+  TempRoot = File.expand_path('~/erika') # home
   Config = begin
     config_file_path = File.absolute_path('../../config.yml', __dir__).to_s
     data             = Psych.load_file(config_file_path)
@@ -10,7 +11,8 @@ class Erika
                    frame_rate:   "1/#{data['slide_duration']}",
                    source_dir:   root + '/' + data['source'].split('/').first,
                    output_dir:   root + '/' + data['output']['filename'].split('/').first,
-                   source_files: source_files
+                   source_files: source_files,
+                   audio: root + '/' + data['audio']
                }).to_o
   end
   
@@ -20,17 +22,17 @@ class Erika
           filename: 'movie.mp4'
       },
       temp:   {
-          dir:               Config.root + '/tmp',
-          image_dir:         Config.root + '/tmp/images',
-          video_dir:         Config.root + '/tmp/videos',
-          image_path:        Config.root + '/tmp/images/%05d.jpg',
-          video_path:        Config.root + '/tmp/videos/%05d.mp4',
-          video_list:        Config.root + '/tmp/videos/list.txt',
+          dir:               TempRoot + '/tmp',
+          image_dir:         TempRoot + '/tmp/images',
+          video_dir:         TempRoot + '/tmp/videos',
+          image_path:        TempRoot + '/tmp/images/%05d.jpg',
+          video_path:        TempRoot + '/tmp/videos/%05d.mp4',
+          video_list:        TempRoot + '/tmp/videos/list.txt',
           source:            Erika::Config.source,
-          target:            Config.root + "/tmp/#{Erika::Config.source}",
-          filename:          Config.root + "/tmp/#{Erika::Config.output.filename.split('/').last}",
-          audio_filename:    Config.root + "/tmp/#{Erika::Config.audio.split('/').last}",
-          subtitle_filename: Config.root + "/tmp/subtitle.srt"
+          target:            TempRoot + "/tmp/#{Erika::Config.source}",
+          filename:          TempRoot + "/tmp/#{Erika::Config.output.filename.split('/').last}",
+          audio_filename:    TempRoot + "/tmp/#{Erika::Config.audio.split('/').last}",
+          subtitle_filename: TempRoot + "/tmp/subtitle.srt"
       }
   }.to_o
 
