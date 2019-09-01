@@ -19,6 +19,7 @@ class Erika
     end
     
     private
+      
       def _gen_subtitle_file_
         File.write(Erika::Default.temp.subtitle_filename, images.map(&:caption).join("\n"))
       end
@@ -35,14 +36,19 @@ class Erika
       
       
       def prepare_tmp_dir
-        `rm -r #{Erika::Default.temp.dir}`
-        `rm -r #{Erika::Config.output_dir}`
+        cmds = [
+            "rm -r #{Erika::TempRoot}",
+            "rm -r #{Erika::Default.temp.dir}",
+            "rm -r #{Erika::Config.output_dir}",
+            
+            "mkdir #{Erika::TempRoot}",
+            "mkdir #{Erika::Config.output_dir}",
+            "mkdir #{Erika::Default.temp.dir}",
+            "mkdir #{Erika::Default.temp.image_dir}",
+            "mkdir #{Erika::Default.temp.video_dir}"
+        ]
         
-        `mkdir #{Erika::TempRoot}`
-        `mkdir #{Erika::Config.output_dir}`
-        `mkdir #{Erika::Default.temp.dir}`
-        `mkdir #{Erika::Default.temp.image_dir}`
-        `mkdir #{Erika::Default.temp.video_dir}`
+        cmds.each { |cmd| Erika::Runner.(cmd) }
       end
   end
 end

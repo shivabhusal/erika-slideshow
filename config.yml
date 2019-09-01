@@ -1,7 +1,7 @@
 slide_duration: 3 # sec
 slide_animation: cross-fade
 slide_animation_duration: 2
-audio: library/bensound-adventure.mp3
+audio: library/bensound-ukulele.mp3
 source: 'images'
 prefix: hello.jpg
 suffix: thankyou.jpg

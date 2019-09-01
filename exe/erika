@@ -1,10 +1,34 @@
 #!/usr/bin/env ruby
 require 'pry'
+require 'thor'
 
 # Adding the lib directory to the Load Path of Ruby
 $:.unshift File.expand_path("../../lib", __FILE__)
+require 'overrides/hash'
+$erika_options = {}
+class Options < Thor
+  desc "g", "Generate movie"
+  method_option :output,
+                :aliases => "-o",
+                :desc => "Output path; where to generate output movie"
+  method_option :source,
+                :aliases => "-s",
+                :desc => "Input path; folder path where the images are located"
+  method_option :audio,
+                :aliases => "-a",
+                :desc => "Audio path; the path to bg audio"
+  def g
+    # $erika_options.merge({output_dir: File.expand_path(options[:o])}) if options[:o]
+    # $erika_options.merge({source_dir: File.expand_path(options[:s]),
+    #                       source_files: ''}) if options[:s]
+    # $erika_options.merge({audio: File.expand_path(options[:a])}) if options[:a]
+  
+    $erika_options = options.to_o
+    require 'erika'
+    erika = Erika::SlideShow.new
+    erika.start
+  end
+end
 
-require 'erika'
 
-erika = Erika::SlideShow.new
-erika.start
+Options.start(ARGV)
