@@ -1,6 +1,6 @@
-slide_duration: 3 # sec
+slide_duration: 5 # sec
 slide_animation: cross-fade
-slide_animation_duration: 2
+slide_animation_duration: 3
 audio: library/bensound-ukulele.mp3
 source: 'images'
 prefix: hello.jpg

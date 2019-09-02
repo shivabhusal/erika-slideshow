@@ -26,6 +26,7 @@ class Erika
       # Add Background Music to the Slideshow
       cmd = [
           ['ffmpeg'],
+          ['-y'],
           ['-i', full_path], # video file as 0th input
           ['-i', Erika::Default.temp.audio_filename], # audio file as 1st input
           [%Q{-vf "subtitles=#{Erika::Default.temp.subtitle_filename}:force_style='Fontsize=#{Erika::Config.caption.font_size},FontName=#{Erika::Config.caption.font},PrimaryColour=#{Erika::Config.caption.font_color}'"}],
@@ -33,7 +34,7 @@ class Erika
           ['-map', '1:a'], # Selects the audio from 1st input
           ['-ac', '2'], # Audio channel manipulation https://trac.ffmpeg.org/wiki/AudioChannelManipulation
           ['-shortest'], # will end the output file whenever the shortest input ends.
-          [Erika::Config.output.filename]
+          [Erika::Config.output_file]
       ].flatten.join(' ')
 
       Erika::Runner.(cmd)
@@ -80,7 +81,7 @@ class Erika
           Erika::Runner.(cmd)
         end
         
-        cmd = %Q{ffmpeg -f concat -safe 0 -i #{Erika::Default.temp.video_list} -c copy #{Erika::Default.temp.filename}}
+        cmd = %Q{ffmpeg -y -f concat -safe 0 -i #{Erika::Default.temp.video_list} -c copy #{Erika::Default.temp.filename}}
         Erika::Runner.(cmd)
       end
     end

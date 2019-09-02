@@ -1,22 +1,44 @@
 class Erika
+  
+  class << self
+    # @return [dir, file]
+    def _get_output_info_from(data, options)
+      if options.output
+        file_part = options.output.split('/').last
+        
+        if !file_part.include?('.')
+          [File.expand_path(options.output),
+           File.expand_path("#{options.output}/#{data['output']['filename'].split('/').last}")]
+        elsif file_part.include?('.')
+          [File.expand_path(options.output.split('/')[0 .. -2].join('/')),
+           File.expand_path(options.output)]
+        end
+      else
+        [File.expand_path(data['output']['filename'].split('/')[0 .. -2].join('/')),
+         File.expand_path(data['output']['filename'])]
+      end
+    end
+  end
+  
   Config = begin
     config_file_path = File.absolute_path('../../config.yml', __dir__).to_s
     data             = Psych.load_file(config_file_path)
     root             = `pwd`.chomp
     
-    output = $erika_options.output ? File.expand_path($erika_options.output) : "#{root}/#{data['output']['filename']}"
+    output_dir, output_file = _get_output_info_from(data, $erika_options)
+    
     source = $erika_options.source ? File.expand_path($erika_options.source) : "#{root}/#{data['source']}"
     audio  = $erika_options.audio ? File.expand_path($erika_options.audio) : File.expand_path('../../../library/bensound-ukulele.mp3', __FILE__)
     
     source_files = "#{source}/*.{#{data['file_types'].join(',')}}"
     data.merge({
-                   root:         root,
-                   no_of_images: Dir[source_files].count,
-                   frame_rate:   "1/#{data['slide_duration']}",
-                   source_dir:   source,
-                   output_dir:   output,
-                   source_files: source_files,
-                   audio:        audio
+                   no_of_images:    Dir[source_files].count,
+                   output_dir:      output_dir,
+                   output_file:     output_file,
+                   source_files:    source_files,
+                   audio:           audio,
+                   slide_duration:  $erika_options.slide_duration.to_f || data['slide_duration'],
+                   slide_animation: $erika_options.transition_duration.to_f || data['slide_animation'],
                }).to_o
   end
   

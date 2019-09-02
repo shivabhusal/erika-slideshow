@@ -17,6 +17,12 @@ class Options < Thor
   method_option :audio,
                 :aliases => "-a",
                 :desc => "Audio path; the path to bg audio"
+  method_option :transition_duration,
+                :aliases => "-t",
+                :desc => "Transition animation duration between two images"
+  method_option :slide_duration,
+                :aliases => "-S",
+                :desc => "Slide duration between two images"
   def g
     # $erika_options.merge({output_dir: File.expand_path(options[:o])}) if options[:o]
     # $erika_options.merge({source_dir: File.expand_path(options[:s]),

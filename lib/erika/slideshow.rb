@@ -42,10 +42,11 @@ class Erika
             "rm -r #{Erika::Config.output_dir}",
             
             "mkdir #{Erika::TempRoot}",
-            "mkdir #{Erika::Config.output_dir}",
             "mkdir #{Erika::Default.temp.dir}",
             "mkdir #{Erika::Default.temp.image_dir}",
-            "mkdir #{Erika::Default.temp.video_dir}"
+            "mkdir #{Erika::Default.temp.video_dir}",
+            
+            "mkdir #{Erika::Config.output_dir}",
         ]
         
         cmds.each { |cmd| Erika::Runner.(cmd) }
