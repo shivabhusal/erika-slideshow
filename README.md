@@ -1,4 +1,5 @@
 # video-generator
+This is tested in macOS Mojave `10.14.6 (18G87)`
 
 ## Installation
 Please make sure you install `FFMPEG` library in your machine before using this gem.
