@@ -1,5 +1,13 @@
 # video-generator
 
+## Installation
+Please make sure you install `FFMPEG` library in your machine before using this gem.
+
+
+```bash
+    gem install erika-slideshow   
+
+```
 ## Requirements
 ### FFMPEG
 A complete, cross-platform solution to record, convert and stream audio and video.
