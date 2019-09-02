@@ -5,7 +5,7 @@ Please make sure you install `FFMPEG` library in your machine before using this 
 
 
 ```bash
-    gem install erika-slideshow   
+    gem install erika   
 
 ```
 ## Requirements
@@ -19,6 +19,49 @@ brew install ffmpeg
 #### Ubuntu
 ```bash
 apt-get install ffmpeg
+```
+
+
+## Usage
+To compile images in `~/pictures/birthday`, you need to make sure files are named in proper order. 
+I recommend you to prefix the files with number like
+```
+- 0 My first birthday.jpg
+- 1 My second birthday.jpg
+- 2 My second birthday.jpg
+- 3 My third birthday.jpg
+```
+
+single command to compile
+```bash
+cd ~/pictures
+
+erika g -s birthday -o mybirthday.mp4 
+
+# This will generate video called `mybirthday.mp4`
+```
+
+## Options
+```bash
+ erika help g
+Usage:
+  erika g
+
+Options:
+  -o, [--output=OUTPUT]                            # Output path; where to generate output movie
+  -s, [--source=SOURCE]                            # Input path; folder path where the images are located
+  -a, [--audio=AUDIO]                              # Audio path; the path to bg audio
+  -t, [--transition-duration=TRANSITION_DURATION]  # Transition animation duration between two images
+  -S, [--slide-duration=SLIDE_DURATION]            # Slide duration between two images
+
+Generate movie
+
+```
+Example:-
+
+```ruby
+ erika g -s happy -S=5 -t=4 -o=opt/mymovie.mp4
+
 ```
 
 ## How Slide Animation is implemented

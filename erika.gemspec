@@ -3,7 +3,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "erika/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "erika"
+  spec.name          = "erika-slideshow"
   spec.version       = Erika::VERSION
   spec.authors       = ["Shiva Bhusal"]
   spec.email         = ["hotline.shiva@gmail.com"]
