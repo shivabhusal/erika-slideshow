@@ -37,16 +37,16 @@ class Erika
       
       def prepare_tmp_dir
         cmds = [
-            "rm -r #{Erika::TempRoot}",
-            "rm -r #{Erika::Default.temp.dir}",
-            "rm -r #{Erika::Config.output_dir}",
+            %Q{rm -r "#{Erika::TempRoot}"},
+            %Q{rm -r "#{Erika::Default.temp.dir}"},
+            %Q{rm -r "#{Erika::Config.output_dir}"},
             
-            "mkdir #{Erika::TempRoot}",
-            "mkdir #{Erika::Default.temp.dir}",
-            "mkdir #{Erika::Default.temp.image_dir}",
-            "mkdir #{Erika::Default.temp.video_dir}",
+            %Q{mkdir "#{Erika::TempRoot}"},
+            %Q{mkdir "#{Erika::Default.temp.dir}"},
+            %Q{mkdir "#{Erika::Default.temp.image_dir}"},
+            %Q{mkdir "#{Erika::Default.temp.video_dir}"},
             
-            "mkdir #{Erika::Config.output_dir}",
+            %Q{mkdir "#{Erika::Config.output_dir}"},
         ]
         
         cmds.each { |cmd| Erika::Runner.(cmd) }

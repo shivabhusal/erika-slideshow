@@ -34,7 +34,7 @@ class Erika
           ['-map', '1:a'], # Selects the audio from 1st input
           ['-ac', '2'], # Audio channel manipulation https://trac.ffmpeg.org/wiki/AudioChannelManipulation
           ['-shortest'], # will end the output file whenever the shortest input ends.
-          [Erika::Config.output_file]
+          [%Q{"#{Erika::Config.output_file}"}]
       ].flatten.join(' ')
 
       Erika::Runner.(cmd)
@@ -68,7 +68,7 @@ class Erika
           ['-t', Erika::Config.slide_duration],
           ['-q:v', '1'],
           ['-b:a 32k'],
-          [temp_path]
+          [%Q{"#{temp_path}"}]
       ].join(' ')
       
       Erika::Runner.(cmd)
