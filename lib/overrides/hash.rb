@@ -1,3 +1,4 @@
+require 'json'
 #Convert Hash to OpenStruct recursively
 class Hash
   def to_o

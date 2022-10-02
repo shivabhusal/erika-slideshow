@@ -1,4 +1,6 @@
 require "bundler/setup"
+require 'overrides/hash'
+$erika_options =  {"source"=>"./fixture", "output"=>"output.mp4"}.to_o
 require "erika"
 
 RSpec.configure do |config|

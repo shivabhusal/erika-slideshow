@@ -39,7 +39,7 @@ class Erika
         cmds = [
             %Q{rm -r "#{Erika::TempRoot}"},
             %Q{rm -r "#{Erika::Default.temp.dir}"},
-            %Q{rm -r "#{Erika::Config.output_dir}"},
+            # %Q{rm -r "#{Erika::Config.output_dir}"},
             
             %Q{mkdir "#{Erika::TempRoot}"},
             %Q{mkdir "#{Erika::Default.temp.dir}"},

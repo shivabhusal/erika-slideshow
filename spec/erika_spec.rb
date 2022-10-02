@@ -1,9 +1,8 @@
 RSpec.describe Erika do
-  it "has a version number" do
-    expect(Erika::VERSION).not_to be nil
-  end
+  context 'When images are present' do
 
-  it "does something useful" do
-    expect(false).to eq(true)
+    it 'creates a slideshow'
+    erika = Erika::SlideShow.new
+    erika.start
   end
 end
